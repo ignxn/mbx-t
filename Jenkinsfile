@@ -1,3 +1,5 @@
+env.SUDO_ASKPASS = '/usr/libexec/sudo-askpass'
+
 pipeline {
      agent any
      stages {
