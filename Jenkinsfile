@@ -1,18 +1,18 @@
 env.SUDO_ASKPASS = '/usr/libexec/sudo-askpass'
 
 pipeline {
-     agent any
-     stages {
+    agent any
+    stages {
         stage("Build") {
             steps {
-                sh "sudo npm install"
-                sh "sudo npm run build"
+                sh "sudo -A npm install"
+                sh "sudo -A npm run build"
             }
         }
         stage("Deploy") {
             steps {
-                sh "sudo rm -rf /var/www/jenkins-react-app"
-                sh "sudo cp -r ${WORKSPACE}/build/ /var/www/jenkins-react-app/"
+                sh "sudo -A rm -rf /var/www/jenkins-react-app"
+                sh "sudo -A cp -r ${WORKSPACE}/build/ /var/www/jenkins-react-app/"
             }
         }
     }
