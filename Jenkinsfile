@@ -1,6 +1,17 @@
 pipeline {
     agent any
+
+    tools { nodejs "nodejs" }
+
+
     stages {
+        stage('Test npm') {
+          steps {
+            sh """
+              npm --version
+            """
+          }
+        }
         stage("Build") {
             steps {
                 sh "sudo npm install"
