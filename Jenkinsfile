@@ -1,26 +1,45 @@
 pipeline {
     agent any
+    tools {
+        nodejs 'nodejs'
+    }
+    parameters {
+        choice(name:'VERSION', choices:['1.0', '1.1', '1.2'], description:'Choose the version of the project')
 
-    tools { nodejs "14.16.0" }
+        booleanParam(name :'executeTests', description:'Execute the tests', defaultValue:false)
+    }
 
     stages {
-        stage('Test npm') {
-          steps {
-            sh """
-              npm --version
-            """
-          }
-        }
-        stage("Build") {
+        stage('Build') {
             steps {
-                sh "npm install"
-                sh "npm run build"
+                sh 'npm install'
+                // sh 'npm run build'
             }
         }
-        stage("Deploy") {
+        stage('Test') {
             steps {
-                sh "sudo rm -rf /var/www/jenkins-react-app"
-                sh "sudo cp -r ${WORKSPACE}/build/ /var/www/jenkins-react-app/"
+                // sh 'npm run test'
+                echo "Test"
+
+            }
+        }
+        stage('Build Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'ihnatsi-docker-hub', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                    sh 'docker build -t ihnatsi/front-end-mbxt .'
+                    sh "echo $PASS | docker login -u $USER --password-stdin"
+                    sh 'docker push ihnatsi/front-end-mbxt'
+                }
+            }
+        }
+        stage ('Deploy') {
+            steps {
+                script {
+                    def dockerCmd = 'docker run  -p 3000:3000 -d ihnatsi/front-end-mbxt'
+                    sshagent(['ec2-server-key']) {
+                        sh "ssh -o StrictHostKeyChecking=no ec2-user@3.92.144.96 ${dockerCmd}"
+                    }
+                }
             }
         }
     }
