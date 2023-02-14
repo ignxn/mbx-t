@@ -8,36 +8,11 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
-            steps {
-                sh 'npm install'
-                // sh 'npm run build'
-            }
-        }
         stage('Test') {
             steps {
                 // sh 'npm run test'
                 echo "Test"
 
-            }
-        }
-        stage('Build Image') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'ihnatsi-docker-hub', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                    sh 'docker build -t ihnatsi/front-end-mbxt .'
-                    sh "echo $PASS | docker login -u $USER --password-stdin"
-                    sh 'docker push ihnatsi/front-end-mbxt'
-                }
-            }
-        }
-        stage ('Deploy') {
-            steps {
-                script {
-                    def dockerCmd = 'docker run  -p 3000:3000 -d ihnatsi/front-end-mbxt'
-                    sshagent(['ec2-server-key']) {
-                        sh "ssh -o StrictHostKeyChecking=no ec2-user@3.92.144.96 ${dockerCmd}"
-                    }
-                }
             }
         }
     }
