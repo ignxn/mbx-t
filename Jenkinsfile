@@ -1,7 +1,7 @@
 pipeline {
     agent any
 
-    tools { nodejs "18.14.0" }
+    tools { nodejs "14.16.0" }
 
     stages {
         stage('Test npm') {
